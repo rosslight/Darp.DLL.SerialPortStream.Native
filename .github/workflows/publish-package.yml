@@ -40,17 +40,19 @@ jobs:
       package_version: ${{ needs.version.outputs.value }}
 
   publish:
-    name: Publish ${{ needs.version.outputs.value }}
+    name: Publish and release ${{ needs.version.outputs.value }}
     needs:
       - version
       - build-test-pack
     runs-on: ubuntu-24.04
     permissions:
-      contents: read
+      contents: write
       packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Download package
         uses: actions/download-artifact@v8
@@ -75,3 +77,29 @@ jobs:
             --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
             --api-key "$NUGET_AUTH_TOKEN" \
             --skip-duplicate
+
+      - name: Generate release notes
+        shell: pwsh
+        run: >-
+          ./scripts/generate-release-notes.ps1
+          -Tag "${{ github.ref_name }}"
+          -Repository "${{ github.repository }}"
+          -OutputPath "artifacts/release-notes.md"
+
+      - name: Create or update GitHub Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          package="artifacts/packages/Darp.DLL.SerialPortStream.Native.${{ needs.version.outputs.value }}.nupkg"
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release edit "$GITHUB_REF_NAME" \
+              --title "$GITHUB_REF_NAME" \
+              --notes-file "artifacts/release-notes.md"
+            gh release upload "$GITHUB_REF_NAME" "$package" --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" "$package" \
+              --verify-tag \
+              --title "$GITHUB_REF_NAME" \
+              --notes-file "artifacts/release-notes.md"
+          fi

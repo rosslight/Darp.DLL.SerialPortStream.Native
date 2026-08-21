@@ -62,7 +62,9 @@ git push origin v1.2.3
 
 The tag must match `vMAJOR.MINOR.PATCH`. The publishing workflow removes the
 leading `v`, passes the resulting version to the existing build workflow, and
-publishes only after the package tests pass on Linux x64 and arm64.
+publishes only after the package tests pass on Linux x64 and arm64. It also
+creates a GitHub Release, generates its sections from conventional commits
+since the preceding version tag, and attaches the `.nupkg`.
 
 ## Updating upstream
 
