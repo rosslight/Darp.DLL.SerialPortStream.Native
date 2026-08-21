@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsTestProject>true</IsTestProject>
+    <IsPackable>false</IsPackable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <AssemblyName>RJCP.SerialPortStreamTest</AssemblyName>
+    <RootNamespace>RJCP.IO.Ports</RootNamespace>
+    <NativePackageVersion Condition="'$(NativePackageVersion)' == ''">0.1.0</NativePackageVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Darp.DLL.SerialPortStream.Native" Version="$(NativePackageVersion)" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    <PackageReference Include="NUnit" Version="4.4.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="5.1.0" />
+    <PackageReference Include="RJCP.SerialPortStream" Version="$(SerialPortStreamVersion)" />
+    <PackageReference Include="RJCP.SerialPortStream.Virtual" Version="3.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../../native/SerialPortStream/test/SerialPortStreamTest/SerialPortStreamSimpleTest.cs"
+             Link="Upstream/SerialPortStreamSimpleTest.cs" />
+  </ItemGroup>
+</Project>

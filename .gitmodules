@@ -1,0 +1,3 @@
+[submodule "native/SerialPortStream"]
+	path = native/SerialPortStream
+	url = https://github.com/jcurl/RJCP.DLL.SerialPortStream.git

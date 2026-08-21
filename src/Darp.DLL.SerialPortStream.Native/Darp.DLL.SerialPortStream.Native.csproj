@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <IsPackable>true</IsPackable>
+
+    <PackageId>Darp.DLL.SerialPortStream.Native</PackageId>
+    <Title>Native runtimes for RJCP.SerialPortStream</Title>
+    <Description>Prebuilt libnserial native runtimes for RJCP.SerialPortStream on Linux x64 and arm64.</Description>
+    <PackageTags>serial;serialport;native;interop;pinvoke;linux</PackageTags>
+    <Authors>rosslight GmbH</Authors>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/rosslight/Darp.DLL.SerialPortStream.Native</RepositoryUrl>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+    <None Include="../../LICENSE.md" Pack="true" PackagePath="/" />
+    <None Include="empty/_._" Pack="true" PackagePath="lib/netstandard2.0/_._" />
+    <None Include="../../artifacts/native/**/*.*"
+          Condition="Exists('../../artifacts/native')"
+          Pack="true"
+          PackagePath="runtimes/%(RecursiveDir)native/%(Filename)%(Extension)" />
+  </ItemGroup>
+</Project>
