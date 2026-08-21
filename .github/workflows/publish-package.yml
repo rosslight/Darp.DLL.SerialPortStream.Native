@@ -78,28 +78,10 @@ jobs:
             --api-key "$NUGET_AUTH_TOKEN" \
             --skip-duplicate
 
-      - name: Generate release notes
-        shell: pwsh
-        run: >-
-          ./scripts/generate-release-notes.ps1
-          -Tag "${{ github.ref_name }}"
-          -Repository "${{ github.repository }}"
-          -OutputPath "artifacts/release-notes.md"
-
       - name: Create or update GitHub Release
-        shell: bash
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          package="artifacts/packages/Darp.DLL.SerialPortStream.Native.${{ needs.version.outputs.value }}.nupkg"
-          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
-            gh release edit "$GITHUB_REF_NAME" \
-              --title "$GITHUB_REF_NAME" \
-              --notes-file "artifacts/release-notes.md"
-            gh release upload "$GITHUB_REF_NAME" "$package" --clobber
-          else
-            gh release create "$GITHUB_REF_NAME" "$package" \
-              --verify-tag \
-              --title "$GITHUB_REF_NAME" \
-              --notes-file "artifacts/release-notes.md"
-          fi
+        uses: softprops/action-gh-release@c12583777ecdfd3be55c69cf75464299dc01057e # v3
+        with:
+          name: ${{ github.ref_name }}
+          generate_release_notes: true
+          files: artifacts/packages/Darp.DLL.SerialPortStream.Native.${{ needs.version.outputs.value }}.nupkg
+          fail_on_unmatched_files: true
