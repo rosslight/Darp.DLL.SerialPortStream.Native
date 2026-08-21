@@ -1,0 +1,78 @@
+name: Publish package
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  version:
+    name: Read package version
+    runs-on: ubuntu-24.04
+    outputs:
+      value: ${{ steps.version.outputs.value }}
+    steps:
+      - name: Validate version tag
+        id: version
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF_NAME" =~ ^v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+            echo "value=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+          else
+            echo "Tag '$GITHUB_REF_NAME' must use vMAJOR.MINOR.PATCH." >&2
+            exit 1
+          fi
+
+  build-test-pack:
+    name: Build and test ${{ needs.version.outputs.value }}
+    needs: version
+    permissions:
+      contents: read
+    uses: ./.github/workflows/build-package.yml
+    with:
+      package_version: ${{ needs.version.outputs.value }}
+
+  publish:
+    name: Publish ${{ needs.version.outputs.value }}
+    needs:
+      - version
+      - build-test-pack
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download package
+        uses: actions/download-artifact@v4
+        with:
+          name: packages
+          path: artifacts/packages
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Publish to GitHub Packages
+        shell: bash
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PACKAGE_VERSION: ${{ needs.version.outputs.value }}
+        run: |
+          package="artifacts/packages/Darp.DLL.SerialPortStream.Native.${PACKAGE_VERSION}.nupkg"
+          test -f "$package"
+          dotnet nuget push "$package" \
+            --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+            --api-key "$NUGET_AUTH_TOKEN" \
+            --skip-duplicate
+

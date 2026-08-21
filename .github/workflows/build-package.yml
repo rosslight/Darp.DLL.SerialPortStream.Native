@@ -3,10 +3,19 @@ name: Build and test package
 on:
   pull_request:
   push:
+    branches:
+      - "**"
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      package_version:
+        description: NuGet package version
+        required: false
+        type: string
+        default: 0.1.0
 
 env:
-  PACKAGE_VERSION: 0.1.0
+  PACKAGE_VERSION: ${{ inputs.package_version || '0.1.0' }}
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
 

@@ -2,8 +2,9 @@
 
 Builds and packages the native `libnserial` library used by
 [`RJCP.SerialPortStream`](https://github.com/jcurl/RJCP.DLL.SerialPortStream).
-The upstream repository is pinned as a Git submodule, so native builds are
-reproducible without copying its sources into this repository.
+The upstream repository is pinned to `release/v3.0.5` as a Git submodule, so
+native builds are reproducible without copying its sources into this
+repository.
 
 The NuGet package contains native assets for these runtime identifiers:
 
@@ -17,7 +18,7 @@ Reference the managed and native packages together:
 ```xml
 <ItemGroup>
   <PackageReference Include="RJCP.SerialPortStream" Version="3.0.5" />
-  <PackageReference Include="Darp.DLL.SerialPortStream.Native" Version="0.1.0" />
+  <PackageReference Include="Darp.DLL.SerialPortStream.Native" Version="3.0.5" />
 </ItemGroup>
 ```
 
@@ -48,6 +49,20 @@ aggregates both binaries into one package, and tests that package on both
 architectures. The linked test fixture comes directly from the pinned upstream
 submodule; the small local support classes only replace upstream test-project
 dependencies that live in separate repositories.
+
+## Publish a package
+
+Push a semantic version tag to build, test, pack, and publish that version to
+the `rosslight` GitHub Packages NuGet registry:
+
+```powershell
+git tag v1.2.3
+git push origin v1.2.3
+```
+
+The tag must match `vMAJOR.MINOR.PATCH`. The publishing workflow removes the
+leading `v`, passes the resulting version to the existing build workflow, and
+publishes only after the package tests pass on Linux x64 and arm64.
 
 ## Updating upstream
 
